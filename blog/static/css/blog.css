@@ -38,6 +38,10 @@ h1, h2, h3, h4 {
 }
 
 body {
-    background: white url("images/sample.jpg") no-repeat;
-    background-position: 100% 100%;
+    background: url("images/sample.jpg"), url("images/back.jpg");
+    background-position: right bottom, right top;
+    background-repeat: no-repeat, no-repeat;
+    background-size: 22%, 25%;
+    background-attachment: fixed ,fixed;
+
 }

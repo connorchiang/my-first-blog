@@ -1,0 +1,29 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+		<div class="cv">
+			{% if user.is_authenticated %}
+			<a class="btn btn-default" href="{% url 'cv_edit' pk=cv.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
+			{% endif %}
+			
+			<h2><a href="{% url 'cv_detail' pk=cv.pk %}">{{ cv.title }}</a></h2>
+
+			<h3>{{ "Contact Details:"|linebreaksbr }}</h3>
+			<p>{{ cv.contact_details|linebreaksbr }}</p>
+
+			<h3>{{ "Educational Background:"|linebreaksbr }}</h3>
+			<p>{{ cv.educational_background|linebreaksbr }}</p>
+
+			<h3>{{ "Award:"|linebreaksbr }}</h3>
+			<p>{{ cv.award|linebreaksbr }}</p>
+
+			<h3>{{ "Research Experience:"|linebreaksbr }}</h3>
+			<p>{{ cv.research_experience|linebreaksbr }}</p>
+
+			<h3>{{ "Community Services:"|linebreaksbr }}</h3>
+			<p>{{ cv.community_services|linebreaksbr }}</p>
+
+			<h3>{{ "Skills:"|linebreaksbr }}</h3>
+			<p>{{ cv.skills|linebreaksbr }}</p>
+		</div>
+{% endblock %}
