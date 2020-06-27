@@ -1,64 +1,66 @@
-from django.urls import resolve
+from django.urls import resolve,reverse
 from django.test import TestCase
 from django.http import HttpRequest
 from .models import Post,Cv
-
-from .views import cv_detail, cv_edit  
+from .forms import PostForm,CvForm
+from django.contrib.auth.models import User
+from .views import post_list,cv_detail, cv_edit  
 
 class HomePageTest(TestCase):
 
-    def test_uses_home_template(self):
-        response = self.client.get('/')
-        self.assertTemplateUsed(response, 'home.html')
+    def setUp(self):
+        """Add some objects to the database that all tests will need."""
+        self.user = User.objects.create_superuser(
+            username='admin', email='', password='admin'
+        )
 
-    def test_can_save_a_POST_request(self):
-        response = self.client.post('/', data={'item_text': 'A new list item'})
+        self.cv = Cv.objects.create(
+            title = '1', text = '1',
+        contact_details = '1', educational_background = '1',
+        award = '1', research_experience = '1', community_services = '1', skills = '1',
+        )
 
-        self.assertEqual(Item.objects.count(), 1)  
-        new_item = Item.objects.first()  
-        self.assertEqual(new_item.text, 'A new list item')
+        self.client.login(username='admin', password='admin')
 
-        self.assertIn('A new list item', response.content.decode())
-        self.assertTemplateUsed(response, 'home.html')
 
-    def test_saving_and_retrieving_items(self):
-        first_item = Item()
-        first_item.text = 'The first (ever) list item'
-        first_item.save()
+    def test_uses_cv_template(self):
 
-        second_item = Item()
-        second_item.text = 'Item the second'
-        second_item.save()
+        cv_url = reverse("cv_detail", kwargs={"pk": self.cv.pk})
+        response = self.client.get(cv_url)
+        self.assertTemplateUsed(response, 'blog/cv_detail.html')
 
-        saved_items = Item.objects.all()
-        self.assertEqual(saved_items.count(), 2)
 
-        first_saved_item = saved_items[0]
-        second_saved_item = saved_items[1]
-        self.assertEqual(first_saved_item.text, 'The first (ever) list item')
-        self.assertEqual(second_saved_item.text, 'Item the second')
+    def test_saving_cv(self): 
 
-    def test_can_save_a_POST_request(self):
-        response = self.client.post('/', data={'item_text': 'A new list item'})
+        saved_cv = Cv.objects.all()
+        self.assertEqual(saved_cv.count(), 1)
 
-        self.assertEqual(Item.objects.count(), 1)  
-        new_item = Item.objects.first()  
-        self.assertEqual(new_item.text, 'A new list item')  
+        first_cv = saved_cv[0]
+        first_cv.text = 'The first Cv'
+        first_cv.save()
 
-    def test_redirects_after_POST(self):
-        response = self.client.post('/', data={'item_text': 'A new list item'})
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/')
 
-    def test_only_saves_items_when_necessary(self):
-        self.client.get('/')
-        self.assertEqual(Item.objects.count(), 0)
+        self.assertEqual(first_cv.text, 'The first Cv')
 
-    def test_displays_all_list_items(self):
-        Item.objects.create(text='itemey 1')
-        Item.objects.create(text='itemey 2')
 
-        response = self.client.get('/')
+    def test_superuser_can_edit_old_blog_post(self):
 
-        self.assertIn('itemey 1', response.content.decode())
-        self.assertIn('itemey 2', response.content.decode())
+        new_title = 'Test Title'
+        new_contact = 'Name'
+
+        response = self.client.post(reverse('cv_edit', kwargs={'pk': self.cv.pk}), {
+            'title': new_title,
+            'text': '1',
+            'contact_details' : new_contact,
+            'educational_background' : '1',
+            'award' : '1',
+            'research_experience' : '1',
+            'community_services' : '1' ,
+            'skills' : '1',
+        }, follow=True)
+
+        self.assertRedirects(response, reverse('cv_detail', kwargs={'pk': self.cv.pk}))
+        self.assertContains(response, new_title)
+        self.assertContains(response, new_contact)
+
+

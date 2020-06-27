@@ -66,3 +66,15 @@ def cv_edit(request, pk):
 	else:
 		form = CvForm(instance=cv)
 	return render(request, 'blog/cv_edit.html', {'form': form})
+
+def cv_new(request):
+	if request.method == "POST":
+		form = CvForm(request.POST)
+		if form.is_valid():
+			cv = form.save(commit=False)
+			cv.published_date = timezone.now()
+			cv.save()
+			return redirect('cv_detail', pk=cv.pk)
+	else:
+		form = CvForm()
+	return render(request, 'blog/cv_edit.html', {'form': form})
