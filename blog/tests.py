@@ -43,7 +43,7 @@ class HomePageTest(TestCase):
         self.assertEqual(first_cv.text, 'The first Cv')
 
 
-    def test_superuser_can_edit_old_blog_post(self):
+    def test_superuser_can_edit(self):
 
         new_title = 'Test Title'
         new_contact = 'Name'
